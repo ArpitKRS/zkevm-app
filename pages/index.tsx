@@ -1,102 +1,36 @@
-import { ConnectWallet } from "@thirdweb-dev/react";
 import styles from "../styles/Home.module.css";
-import Image from "next/image";
 import { NextPage } from "next";
+import { useContract, useContractRead, useContractWrite, Web3Button } from "@thirdweb-dev/react";
+
+const contractAddress = "0x1b3ac9d0FAd76Cd5f507Cf5162eE1A6550347E22";
 
 const Home: NextPage = () => {
+
+  // 1. Connect to the smart contract, via contract address
+  const {contract} = useContract(contractAddress)
+
+  // 2. Read some info from the smart contract
+  const {data: greeting, isLoading} = useContractRead(contract, "greet");
+
+  // 3. Connect the user's wallet, swap them over to our chain, call a function on the SC
+
+  const {mutate: setGreeting} = useContractWrite(contract, "setGreeting");
   return (
-    <main className={styles.main}>
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>
-            Welcome to{" "}
-            <span className={styles.gradientText0}>
-              <a
-                href="https://thirdweb.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                thirdweb.
-              </a>
-            </span>
-          </h1>
+    <main className={styles.main} style={{padding:250}}>
+      {/* Display the current greeting */}
+      <p>{isLoading ? "Loading...":greeting}</p>
 
-          <p className={styles.description}>
-            Get started by configuring your desired network in{" "}
-            <code className={styles.code}>src/index.js</code>, then modify the{" "}
-            <code className={styles.code}>src/App.js</code> file!
-          </p>
-
-          <div className={styles.connect}>
-            <ConnectWallet />
-          </div>
-        </div>
-
-        <div className={styles.grid}>
-          <a
-            href="https://portal.thirdweb.com/"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              src="/images/portal-preview.png"
-              alt="Placeholder preview of starter"
-              width={300}
-              height={200}
-            />
-            <div className={styles.cardText}>
-              <h2 className={styles.gradientText1}>Portal ➜</h2>
-              <p>
-                Guides, references, and resources that will help you build with
-                thirdweb.
-              </p>
-            </div>
-          </a>
-
-          <a
-            href="https://thirdweb.com/dashboard"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              src="/images/dashboard-preview.png"
-              alt="Placeholder preview of starter"
-              width={300}
-              height={200}
-            />
-            <div className={styles.cardText}>
-              <h2 className={styles.gradientText2}>Dashboard ➜</h2>
-              <p>
-                Deploy, configure, and manage your smart contracts from the
-                dashboard.
-              </p>
-            </div>
-          </a>
-
-          <a
-            href="https://thirdweb.com/templates"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              src="/images/templates-preview.png"
-              alt="Placeholder preview of templates"
-              width={300}
-              height={200}
-            />
-            <div className={styles.cardText}>
-              <h2 className={styles.gradientText3}>Templates ➜</h2>
-              <p>
-                Discover and clone template projects showcasing thirdweb
-                features.
-              </p>
-            </div>
-          </a>
-        </div>
-      </div>
+      {/* Have a button that calls the setGreeting function */}
+      <Web3Button
+        contractAddress={contractAddress}
+        action={()=> 
+          setGreeting({
+            args: ["Hello Everyone!"],
+          })
+        }
+      >
+        Set Greeting
+      </Web3Button>
     </main>
   );
 };
